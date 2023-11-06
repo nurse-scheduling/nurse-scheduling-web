@@ -1,25 +1,26 @@
-import React from 'react';
+import React, {useState, useContext} from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { Route, Routes } from 'react-router';
+import Login from './pages/login/login';
+import Dashboard from './pages/dashboard/dashboard';
+import { Box } from "@mui/material";
+import UserContext from './contexts/userContext';
+
 
 function App() {
+  const {authenticated} = useContext(UserContext);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Box>
+      {!authenticated ? <Routes>
+        <Route element={<Login/>} path='*' />
+        <Route element={<Login/>} path='/login'/>
+      </Routes> : <Routes>
+        <Route element={<Dashboard/>} path='/dashboard'/>
+      </Routes>}
+      
+    </Box>
+    
   );
 }
 
