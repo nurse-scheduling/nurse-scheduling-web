@@ -1,11 +1,11 @@
-import React, {useState, useContext} from 'react';
-import logo from './logo.svg';
+import React, {useContext} from 'react';
 import './App.css';
 import { Route, Routes } from 'react-router';
 import Login from './pages/login/login';
 import Dashboard from './pages/dashboard/dashboard';
 import { Box } from "@mui/material";
 import UserContext from './contexts/userContext';
+import OffDayRequests from "./pages/requests/OffDayRequests";
 
 
 function App() {
@@ -17,10 +17,11 @@ function App() {
         <Route element={<Login/>} path='/login'/>
       </Routes> : <Routes>
         <Route element={<Dashboard/>} path='/dashboard'/>
+        <Route element={<OffDayRequests/>} path='/off-day-requests' />
       </Routes>}
-      
+
     </Box>
-    
+
   );
 }
 
