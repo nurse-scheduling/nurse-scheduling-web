@@ -6,6 +6,7 @@ import Dashboard from './pages/dashboard/dashboard';
 import { Box } from "@mui/material";
 import UserContext from './contexts/userContext';
 import OffDayRequests from "./pages/requests/OffDayRequests";
+import NurseProfile from "./pages/profile/profile";
 
 
 function App() {
@@ -18,6 +19,8 @@ function App() {
       </Routes> : <Routes>
         <Route element={<Dashboard/>} path='/dashboard'/>
         <Route element={<OffDayRequests/>} path='/off-day-requests' />
+        <Route element={<NurseProfile/>} path='/profile' />
+        
       </Routes>}
 
     </Box>
