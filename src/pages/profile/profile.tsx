@@ -1,7 +1,5 @@
 import React from "react";
-import SideBar from "../../components/SideBar";
 import {Box,} from "@mui/material";
-import OffDayRequestTable from "../../components/OffDayRequestTable";
 import NurseProfile from "../../components/NurseProfile";
 import WorkCalendar from "../../components/WorkCalendar";
 
@@ -18,14 +16,10 @@ function Profile() {
     }
     return (
         <Box >
-            <Box>
-                <SideBar></SideBar>
-            </Box>
             <Box flexDirection="column">
                 <NurseProfile nurse={nurse}/>
                 <WorkCalendar></WorkCalendar>
             </Box>
-                
         </Box>
     )
 

@@ -49,7 +49,7 @@ function SideBar(props: Props) {
     const navigate = useNavigate();
     const container = window !== undefined ? () => window().document.body : undefined;
     const theme = useTheme();
-    const isResponsive = useMediaQuery(theme.breakpoints.down("md"));
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
@@ -91,6 +91,11 @@ function SideBar(props: Props) {
                         }
                     },
                     {
+                        text: "Vardiya Değişimi", icon: <ListIcon />, onClick: () => {
+                            navigate("/change-shifts")
+                        }
+                    },
+                    {
                         text: "Çıkış Yap", icon: <ExitToAppIcon />, onClick: () => {
                             setAuthenticated(false);
                             navigate("/login")
@@ -111,7 +116,7 @@ function SideBar(props: Props) {
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
-            {(isResponsive) && (
+            {(isMobile) && (
                 <AppBar position="fixed" color={'default'}>
                     <Toolbar>
                         <IconButton
@@ -127,7 +132,7 @@ function SideBar(props: Props) {
             <Box
                 component="nav"
                 sx={{
-                    width: { sm: isResponsive ? 0 : drawerWidth },
+                    width: { sm: isMobile ? 0 : drawerWidth },
                     flexShrink: { sm: 0 },
                 }}
             >
