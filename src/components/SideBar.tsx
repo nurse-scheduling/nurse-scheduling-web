@@ -76,11 +76,6 @@ function SideBar(props: Props) {
                     }
                 },
                     {
-                        text: "Çalişma Takvimi", icon: <CalendarMonthIcon />, onClick: () => {
-                            navigate("/dashboard")
-                        }
-                    },
-                    {
                         text: "Profil", icon: <PersonIcon />, onClick: () => {
                             navigate("/profile")
                         }
@@ -93,6 +88,11 @@ function SideBar(props: Props) {
                     {
                         text: "Vardiya Değişimi", icon: <ListIcon />, onClick: () => {
                             navigate("/change-shifts")
+                        }
+                    },
+                    {
+                        text: "Hemşireler", icon: <PersonIcon />, onClick: () => {
+                            navigate("/nurses")
                         }
                     },
                     {

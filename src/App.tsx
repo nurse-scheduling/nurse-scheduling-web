@@ -9,6 +9,8 @@ import OffDayRequests from "./pages/requests/OffDayRequests";
 import ChangeShift from "./pages/requests/ChangeShift";
 import SideBar from "./components/SideBar";
 import NurseProfile from "./pages/profile/profile";
+import AllNurses from "./pages/allnurses/AllNurses";
+import Nurse from "./pages/particular-nurse/Nurse";
 
 
 function App() {
@@ -29,6 +31,8 @@ function App() {
                 <Route element={<OffDayRequests/>} path='/off-day-requests' />
                 <Route element={<ChangeShift/>} path={'/change-shifts'}/>
                 <Route element={<NurseProfile/>} path='/profile' />
+                <Route element={<AllNurses/>} path='/nurses' />
+                <Route element={<Nurse/>} path='/nurse' />
               </Routes>
             </Box>
           </Box>
