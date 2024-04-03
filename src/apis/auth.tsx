@@ -1,6 +1,7 @@
 import {postFetch} from "./utilities";
 
-const BASE_URL = 'http://localhost:8080';
+
+export const BASE_URL = 'http://localhost:8080';
 export const login = async (tcno: string, password: string) => {
     const url=`${BASE_URL}/auth/charge-nurse/login`;
     const payload = {

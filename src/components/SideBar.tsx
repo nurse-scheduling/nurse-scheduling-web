@@ -57,6 +57,7 @@ function SideBar(props: Props) {
         setAuthenticated(false);
         setUser(undefined);
         setBasicAuth("");
+        localStorage.clear();
     }
 
     const drawer = (

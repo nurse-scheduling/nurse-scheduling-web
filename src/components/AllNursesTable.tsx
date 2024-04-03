@@ -1,5 +1,5 @@
-import React from "react";
-import {Avatar, Box, Button, useMediaQuery, useTheme} from "@mui/material";
+import React, {useContext, useEffect} from "react";
+import {Avatar, Box, Skeleton, useMediaQuery, useTheme} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import TableContainer from "@mui/material/TableContainer";
@@ -10,10 +10,12 @@ import TableCell from "@mui/material/TableCell";
 import TableBody from "@mui/material/TableBody";
 import TablePagination from "@mui/material/TablePagination";
 import {useNavigate} from "react-router-dom";
-
+import {useFetchNurses} from "../apis/nurses";
+import userContext from "../contexts/userContext";
+import {NurseType} from "../types/NurseType";
 
 interface Column {
-    id: 'avatar' | 'ad_soyad' | 'departman' ;
+    id: 'avatar' | 'ad_soyad' | 'departman';
     label: string;
     minWidth?: number;
     align?: 'right' | 'center' | 'left';
@@ -33,37 +35,29 @@ interface Data {
     departman: string;
 }
 
-function createData(
-    avatar: string,
-    id: string,
-    ad_soyad: string,
-    departman: string,
-): Data {
-    return {avatar, id, ad_soyad, departman,};
-}
-
-const rows = [
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW23", 'Mert Batuhan Ünverdi',  "Dahiliye",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW24", 'Hüseyin Emre Üğdül',  "Dahiliye",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW25", 'Mert Batuhan Ünverdi',  "Dahiliye",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW26", 'Hüseyin Emre Üğdül',  "Dahiliye",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW27", 'Mert Batuhan Ünverdi',  "Dahiliye",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW28", 'Hüseyin Emre Üğdül',  "Dahiliye",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW29", 'Mert Batuhan Ünverdi',  "Dahiliye",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW30", 'Hüseyin Emre Üğdül',  "Dahiliye",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW31", 'Mert Batuhan Ünverdi',  "Dahiliye",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW32", 'Hüseyin Emre Üğdül',  "Dahiliye",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW33", 'Mert Batuhan Ünverdi',  "Dahiliye",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW34", 'Hüseyin Emre Üğdül',  "Dahiliye",),
-];
-
-
 function AllNursesTable() {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const {basicAuth} = useContext(userContext);
+    const {nurses, isLoading} = useFetchNurses(page, rowsPerPage, basicAuth);
     const navigate = useNavigate();
+    const [data, setData] = React.useState<Data[]>([]);
+
+    useEffect(() => {
+        if (nurses) {
+            const newData = nurses.map((nurse: NurseType) => {
+                return {
+                    avatar: nurse.profilePicture,
+                    id: nurse.id,
+                    ad_soyad: `${nurse.firstName} ${nurse.lastName}`,
+                    departman: nurse.departmentName,
+                };
+            });
+            setData(newData);
+        }
+    }, [nurses]);
 
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
@@ -73,17 +67,17 @@ function AllNursesTable() {
         setRowsPerPage(+event.target.value);
         setPage(0);
     };
-    const handleRowClick = (row: Data) => {
-        navigate("/nurse")
+    const handleRowClick = (id: string) => {
+        navigate("/nurse/" + id);
     };
 
     return (
-        <Box sx={{ width: "100%", paddingTop: isMobile ? '75px' : '0px' }}>
-            <Typography variant={isMobile ? "h4" : "h3"} component="h3" marginBottom={5} align={'center'} marginTop={5}>
-                {"Hemşireler"}
+        <Box sx={{width: "100%", paddingTop: isMobile ? '75px' : '0px'}}>
+            <Typography variant={isMobile ? "h4" : "h3"} component="h3" marginBottom={5} align="center" marginTop={5}>
+                Hemşireler
             </Typography>
-            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-                <TableContainer sx={{ maxHeight: '72.5vh' }}>
+            <Paper sx={{width: '100%', overflow: 'hidden'}}>
+                <TableContainer sx={{maxHeight: '72.5vh'}}>
                     <Table stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
@@ -95,7 +89,7 @@ function AllNursesTable() {
                                             minWidth: column.minWidth,
                                             backgroundColor: "#3788d8",
                                             color: "white",
-                                            fontSize: isMobile ? '12px' : 'inherit', // Adjust font size for mobile
+                                            fontSize: isMobile ? '12px' : 'inherit',
                                         }}
                                     >
                                         {column.label}
@@ -104,41 +98,51 @@ function AllNursesTable() {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {rows
-                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                .map((row) => {
-                                    return (
-                                        <TableRow
-                                            hover
-                                            role="checkbox"
-                                            tabIndex={-1}
-                                            key={row.id}
-                                            onClick={() => handleRowClick(row)} // Handle row click
-                                            style={{ cursor: "pointer" }}
-                                        >
-                                            {columns.map((column) => {
-                                                const value = row[column.id];
-                                                return (
-                                                    <TableCell key={column.id} align={column.align}>
-                                                        {typeof value !== 'string' ? <Button variant={"contained"}
-                                                                                             color={column.label === "Onayla" ? "success" : "error"}
-                                                                                             size={"large"}>{column.label}</Button> :
-                                                            value.startsWith("https") ?
-                                                                <Avatar sx={{ width: 56, height: 56 }}
-                                                                        src={value} /> : value}
-                                                    </TableCell>
-                                                );
-                                            })}
-                                        </TableRow>
-                                    );
-                                })}
+                            {isLoading ? (
+                                Array.from({length: 10}, (_, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell component="th" scope="row" height={56}>
+                                            <Skeleton animation="wave" variant="circular">
+                                                <Avatar/>
+                                            </Skeleton>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Skeleton animation="wave" variant="text"/>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Skeleton animation="wave" variant="text"/>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                data.map((row: Data) => (
+                                    <TableRow
+                                        hover
+                                        role="checkbox"
+                                        tabIndex={-1}
+                                        key={row.id}
+                                        onClick={() => handleRowClick(row.id)}
+                                        style={{cursor: "pointer"}}
+                                    >
+                                        {columns.map((column) => (
+                                            <TableCell key={column.id} align={column.align}>
+                                                {column.id === 'avatar' ? (
+                                                    <Avatar sx={{width: 56, height: 56}} src={row.avatar}/>
+                                                ) : (
+                                                    <Typography variant="body1">{row[column.id]}</Typography>
+                                                )}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))
+                            )}
                         </TableBody>
                     </Table>
                 </TableContainer>
                 <TablePagination
                     rowsPerPageOptions={[10, 25, 100]}
                     component="div"
-                    count={rows.length}
+                    count={data.length}
                     rowsPerPage={rowsPerPage}
                     page={page}
                     onPageChange={handleChangePage}
@@ -146,7 +150,7 @@ function AllNursesTable() {
                 />
             </Paper>
         </Box>
-    )
+    );
 }
 
 export default AllNursesTable;
