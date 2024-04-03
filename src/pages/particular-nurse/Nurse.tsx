@@ -1,23 +1,19 @@
-import React from "react";
+import React, {useContext} from "react";
 import {Box,} from "@mui/material";
 import NurseProfile from "../../components/NurseProfile";
 import WorkCalendar from "../../components/WorkCalendar";
+import UserContext from "../../contexts/userContext";
+import {NurseType} from "../../types/NurseType";
 
 
 
 
 function Nurse() {
-    const nurse = {
-        firstName: "Hüseyin Emre",
-        lastName: "Üğdül",
-        birthDate: "4 Haziran 2000",
-        department: "dahiliye",
-        profilePicture: "https://cdn-icons-png.flaticon.com/512/8496/8496122.png"
-    }
+    const { user } = useContext(UserContext) as { user: NurseType };
     return (
         <Box >
             <Box flexDirection="column">
-                <NurseProfile nurse={nurse}/>
+                <NurseProfile nurse={user}/>
                 <WorkCalendar></WorkCalendar>
             </Box>
         </Box>

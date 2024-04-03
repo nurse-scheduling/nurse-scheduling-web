@@ -17,7 +17,6 @@ import {
     useTheme,
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import PersonIcon from "@mui/icons-material/Person";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import ListIcon from "@mui/icons-material/List";
@@ -31,7 +30,7 @@ interface Props {
 }
 
 function SideBar(props: Props) {
-    const { setAuthenticated } = useContext(UserContext);
+    const { setAuthenticated,setUser,setBasicAuth } = useContext(UserContext);
     const styles = {
         logo: {
             display: "flex",
@@ -53,6 +52,12 @@ function SideBar(props: Props) {
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
+
+    const handleLogout = () => {
+        setAuthenticated(false);
+        setUser(undefined);
+        setBasicAuth("");
+    }
 
     const drawer = (
         <Box>
@@ -97,7 +102,7 @@ function SideBar(props: Props) {
                     },
                     {
                         text: "Çıkış Yap", icon: <ExitToAppIcon />, onClick: () => {
-                            setAuthenticated(false);
+                            handleLogout();
                             navigate("/login")
                         }
                     },].map((item) => (
