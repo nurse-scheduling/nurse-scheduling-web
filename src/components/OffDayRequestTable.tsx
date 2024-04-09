@@ -1,5 +1,5 @@
-import React from "react";
-import {Avatar, Box, Button, ButtonGroup, useMediaQuery, useTheme} from "@mui/material";
+import React, {useContext, useEffect, useState} from "react";
+import {Box, Button, ButtonGroup, Pagination, useMediaQuery, useTheme} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import TableContainer from "@mui/material/TableContainer";
@@ -8,17 +8,15 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import TableBody from "@mui/material/TableBody";
-import TablePagination from "@mui/material/TablePagination";
+import {updateOffDayStatus, useFetchOffDays} from "../apis/offdayrequest";
+import userContext from "../contexts/userContext";
+import {OffDayType} from "../types/OffDayType";
+import SkeletonLoaderList from "./SkeletonLoader";
+import {Column, OffDayRequest} from "../interfaces/OffDayRequest";
+import CustomTableRow from "./CustomTableRow";
 
 
-interface Column {
-    id: 'avatar' | 'ad_soyad' | 'izin_tarih' | 'durum' | 'onay' | 'red';
-    label: string;
-    minWidth?: number;
-    align?: 'right' | 'center' | 'left';
-}
-
-const columns: readonly Column[] = [
+const columns: Column[] = [
     {id: 'avatar', label: '', minWidth: 50, align: 'center'},
     {id: 'ad_soyad', label: 'Ad Soyad', minWidth: 100, align: 'center'},
     {id: 'izin_tarih', label: 'İzin İstenilen Tarih', minWidth: 100, align: 'center'},
@@ -39,139 +37,146 @@ const columns: readonly Column[] = [
         label: 'Reddet',
         minWidth: 50,
         align: 'center',
-
     },
 ];
 
-interface Data {
-    avatar: string;
-    id: string;
-    ad_soyad: string;
-    izin_tarih: string;
-    durum: string;
-    onay: void;
-    red: void;
-}
-
-function createData(
-    avatar: string,
-    id: string,
-    ad_soyad: string,
-    izin_tarih: string,
-    durum: string,
-    onay: void,
-    red: void
-): Data {
-    return {avatar, id, ad_soyad, izin_tarih, durum, onay, red};
-}
-
-const rows = [
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW23", 'Mert Batuhan Ünverdi', '13.12.2023', "Beklemede",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW24", 'Hüseyin Emre Üğdül', '13.12.2023', "Beklemede",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW25", 'Mert Batuhan Ünverdi', '16.12.2023', "Beklemede",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW26", 'Hüseyin Emre Üğdül', '14.12.2023', "Beklemede",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW27", 'Mert Batuhan Ünverdi', '16.12.2023', "Beklemede",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW28", 'Hüseyin Emre Üğdül', '14.12.2023', "Beklemede",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW29", 'Mert Batuhan Ünverdi', '16.12.2023', "Beklemede",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW30", 'Hüseyin Emre Üğdül', '14.12.2023', "Beklemede",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW31", 'Mert Batuhan Ünverdi', '16.12.2023', "Beklemede",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW32", 'Hüseyin Emre Üğdül', '14.12.2023', "Beklemede",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW33", 'Mert Batuhan Ünverdi', '16.12.2023', "Beklemede",),
-    createData("https://cdn-icons-png.flaticon.com/512/8496/8496122.png", "CW34", 'Hüseyin Emre Üğdül', '14.12.2023', "Beklemede",),
-];
+const statusMap: Record<string, Record<string, number>> = {
+    'Beklemede': {'PENDING': 5},
+    'Kabul': {'ACCEPTED': 3},
+    'Red': {'REJECTED': 3}
+};
 
 
 function OffDayRequestTable() {
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
-    const [active, setActive] = React.useState("Beklemede");
+    const [page, setPage] = useState(0);
+    const [rowsPerPage] = useState(10);
+    const [active, setActive] = useState("PENDING");
+    const {basicAuth} = useContext(userContext);
+    const {offDays, isLoading} = useFetchOffDays(page, rowsPerPage, basicAuth, active);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const [data, setData] = useState<OffDayRequest[]>([]);
+    const [skeletonCount, setSkeletonCount] = useState(5);
 
-    const handleChange = (title: string) => {
-        setActive(title);
+
+    useEffect(() => {
+        if (offDays) {
+            const newData = offDays.map((offDay: OffDayType) => {
+                const {id, nurseName, nurseProfilePicture, date, status} = offDay;
+                return {
+                    avatar: nurseProfilePicture,
+                    id: id,
+                    ad_soyad: nurseName,
+                    izin_tarih: date,
+                    durum: status === 'PENDING' ? 'Beklemede' : status === 'ACCEPTED' ? 'Kabul' : 'Red',
+                    onay: undefined,
+                    red: undefined
+                };
+            });
+            setData(newData);
+        }
+    }, [offDays]);
+
+
+    const handleApprove = (id: string) => {
+        updateOffDayStatus(id, 'ACCEPTED', basicAuth).then(updatedOffDay => {
+            setData(prevData => {
+                return prevData.filter(offDay => offDay.id !== updatedOffDay.id);
+            });
+        }).catch(error => {
+            console.error('Approval failed:', error);
+        });
     }
 
-    const handleChangePage = (event: unknown, newPage: number) => {
-        setPage(newPage);
+    const handleReject = (id: string) => {
+        updateOffDayStatus(id, 'REJECTED', basicAuth).then(updatedOffDay => {
+            setData(prevData => {
+                return prevData.filter(offDay => offDay.id !== updatedOffDay.id);
+            });
+        }).catch(error => {
+            console.error('Approval failed:', error);
+        });
+    }
+
+    const handleChange = (title: string) => {
+        const newActive = statusMap[title];
+        if (newActive) {
+            const activeKey = Object.keys(newActive)[0];
+            const activeValue = newActive[activeKey];
+            setPage(0);
+            setActive(activeKey);
+            setSkeletonCount(activeValue);
+        }
     };
 
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(+event.target.value);
-        setPage(0);
+    const handleChangePage = (event: React.ChangeEvent<unknown>, newPage: number) => {
+        setPage(newPage - 1)
     };
+
 
     return (
-        <Box sx={{ width: "100%", paddingTop: isMobile ? '75px' : '0px' }}>
+        <Box sx={{width: "100%", paddingTop: isMobile ? '75px' : '0px'}}>
             <Typography variant={isMobile ? "h4" : "h3"} component="h3" marginBottom={5} align={'center'} marginTop={5}>
                 {"İzin Talepleri"}
             </Typography>
-            <ButtonGroup style={{ marginBottom: 25, marginLeft: 5 }}>
-                <Button variant={active === "Beklemede" ? "contained" : "outlined"} onClick={() => { handleChange("Beklemede") }}>
+            <ButtonGroup style={{marginBottom: 25, marginLeft: 5}}>
+                <Button variant={active === "PENDING" ? "contained" : "outlined"} onClick={() => {
+                    handleChange("Beklemede")
+                }}>
                     {"Beklemede"}
                 </Button>
-                <Button variant={active === "Kabul" ? "contained" : "outlined"} onClick={() => { handleChange("Kabul") }}>
+                <Button variant={active === "ACCEPTED" ? "contained" : "outlined"} onClick={() => {
+                    handleChange("Kabul")
+                }}>
                     {"Kabul"}
                 </Button>
-                <Button variant={active === "Red" ? "contained" : "outlined"} onClick={() => { handleChange("Red") }}>
+                <Button variant={active === "REJECTED" ? "contained" : "outlined"} onClick={() => {
+                    handleChange("Red")
+                }}>
                     {"Red"}
                 </Button>
             </ButtonGroup>
-            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-                <TableContainer sx={{ maxHeight: '72.5vh' }}>
+            <Paper sx={{width: '100%', overflow: 'hidden'}}>
+                <TableContainer sx={{maxHeight: '72.5vh'}}>
                     <Table stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
                                 {columns.map((column) => (
-                                    <TableCell
-                                        key={column.id}
-                                        align={column.align}
-                                        style={{
-                                            minWidth: column.minWidth,
-                                            backgroundColor: "#3788d8",
-                                            color: "white",
-                                            fontSize: isMobile ? '12px' : 'inherit', // Adjust font size for mobile
-                                        }}
-                                    >
-                                        {column.label}
-                                    </TableCell>
+                                    <React.Fragment key={column.id}>
+                                        {(column.id !== 'onay' && column.id !== 'red') || active === 'PENDING' ? (
+                                            <TableCell
+                                                align={column.align}
+                                                style={{
+                                                    minWidth: column.minWidth,
+                                                    backgroundColor: "#3788d8",
+                                                    color: "white",
+                                                    fontSize: isMobile ? '12px' : 'inherit',
+                                                }}
+                                            >
+                                                {column.label}
+                                            </TableCell>
+                                        ) : null}
+                                    </React.Fragment>
                                 ))}
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {rows
-                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                .map((row) => {
-                                    return (
-                                        <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                                            {columns.map((column) => {
-                                                const value = row[column.id];
-                                                return (
-                                                    <TableCell key={column.id} align={column.align}>
-                                                        {typeof value !== 'string' ? <Button variant={"contained"}
-                                                                                             color={column.label === "Onayla" ? "success" : "error"}
-                                                                                             size={"large"}>{column.label}</Button> :
-                                                            value.startsWith("https") ?
-                                                                <Avatar sx={{ width: 56, height: 56 }}
-                                                                        src={value} /> : value}
-                                                    </TableCell>
-                                                );
-                                            })}
-                                        </TableRow>
-                                    );
-                                })}
+                            {isLoading ? (
+                                <SkeletonLoaderList rowCount={10} cellCount={skeletonCount} avatar={true}/>
+                            ) : (
+                                data
+                                    .slice(0, rowsPerPage)
+                                    .map((row) => {
+                                        return (
+                                            <CustomTableRow row={row} columns={columns} handleApprove={handleApprove}
+                                                            handleReject={handleReject}/>
+                                        );
+                                    }))
+                            }
                         </TableBody>
                     </Table>
                 </TableContainer>
-                <TablePagination
-                    rowsPerPageOptions={[10, 25, 100]}
-                    component="div"
-                    count={rows.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                />
+                <Pagination onChange={handleChangePage} page={page + 1} count={data.length}/>
             </Paper>
         </Box>
     )
