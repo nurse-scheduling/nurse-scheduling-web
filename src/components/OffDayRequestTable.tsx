@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Box, Button, ButtonGroup, Pagination, useMediaQuery, useTheme} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
@@ -9,7 +9,6 @@ import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import TableBody from "@mui/material/TableBody";
 import {updateOffDayStatus, useFetchOffDays} from "../apis/offdayrequest";
-import userContext from "../contexts/userContext";
 import {OffDayType} from "../types/OffDayType";
 import SkeletonLoaderList from "./SkeletonLoader";
 import {Column, OffDayRequest} from "../interfaces/OffDayRequest";
@@ -51,7 +50,7 @@ function OffDayRequestTable() {
     const [page, setPage] = useState(0);
     const [rowsPerPage] = useState(10);
     const [active, setActive] = useState("PENDING");
-    const {basicAuth} = useContext(userContext);
+    const basicAuth = localStorage.getItem("basicAuth");
     const {offDays, isLoading} = useFetchOffDays(page, rowsPerPage, basicAuth, active);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));

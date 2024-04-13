@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from "react";
+import React, {useEffect} from "react";
 import {Avatar, Box, Skeleton, useMediaQuery, useTheme} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
@@ -11,7 +11,6 @@ import TableBody from "@mui/material/TableBody";
 import TablePagination from "@mui/material/TablePagination";
 import {useNavigate} from "react-router-dom";
 import {useFetchNurses} from "../apis/nurses";
-import userContext from "../contexts/userContext";
 import {NurseType} from "../types/NurseType";
 
 interface Column {
@@ -40,7 +39,7 @@ function AllNursesTable() {
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const {basicAuth} = useContext(userContext);
+    const basicAuth = localStorage.getItem("basicAuth");
     const {nurses, isLoading} = useFetchNurses(page, rowsPerPage, basicAuth);
     const navigate = useNavigate();
     const [data, setData] = React.useState<Data[]>([]);

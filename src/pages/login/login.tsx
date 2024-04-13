@@ -1,7 +1,6 @@
 import {Box, TextField, Button, useMediaQuery, useTheme, Alert,Slide} from "@mui/material";
-import React, {useState, useEffect, useContext} from "react";
+import React, {useState} from "react";
 import {useNavigate} from "react-router";
-import UserContext from "../../contexts/userContext";
 import {NurseType} from "../../types/NurseType";
 import {login} from "../../apis/auth";
 
@@ -9,20 +8,19 @@ function Login() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-    const {setAuthenticated, setUser, setBasicAuth} = useContext(UserContext);
     const navigate = useNavigate();
     const [tcno, setTcno] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [tcnoError, setTcnoError] = useState<string>("");
     const [errorMessage, setErrorMessage] = useState<string>("");
 
-    useEffect(() => {
-        if (tcno?.length !== 11) {
+    const handleTcNoError = () => {
+        if (tcno?.length > 0 && tcno?.length<11) {
             setTcnoError("TC Kimlik No 11 haneli olmak zorundadır.");
         } else {
             setTcnoError("");
         }
-    }, [tcno.length]);
+    }
 
 
     const handleLogin = () => {
@@ -33,9 +31,9 @@ function Login() {
                     setErrorMessage(data.errorMessage);
                     return;
                 }
-                setUser(data);
-                setAuthenticated(true);
-                setBasicAuth(credentials);
+                localStorage.setItem("nurse", JSON.stringify(data));
+                localStorage.setItem("basicAuth", credentials)
+                localStorage.setItem("authenticated", "true");
                 navigate("/dashboard");
             }).catch((err) => {
             console.error("Login error:", err);
@@ -77,6 +75,8 @@ function Login() {
                     onChange={(e) => {
                         setTcno(e.target.value);
                     }}
+                    onBlur={() => {handleTcNoError()}}
+                    onFocus={() => {setTcnoError("")}}
                 />
                 <TextField
                     type="password"

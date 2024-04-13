@@ -1,25 +1,21 @@
-import React, {useContext} from "react";
-import {Box,} from "@mui/material";
+import React from "react";
+import { Box } from "@mui/material";
 import NurseProfile from "../../components/NurseProfile";
 import WorkCalendar from "../../components/WorkCalendar";
-import UserContext from "../../contexts/userContext";
-import {NurseType} from "../../types/NurseType";
-
-
-
+import { NurseType } from "../../types/NurseType";
 
 function Profile() {
-    const { user } = useContext(UserContext) as { user: NurseType };
+    const userString = localStorage.getItem("nurse");
+    const user: NurseType = userString ? JSON.parse(userString) : {};
+
     return (
-        <Box >
+        <Box>
             <Box flexDirection="column">
-                <NurseProfile nurse={user}/>
-                <WorkCalendar></WorkCalendar>
+                <NurseProfile nurse={user} />
+                <WorkCalendar />
             </Box>
         </Box>
-    )
-
+    );
 }
-
 
 export default Profile;

@@ -1,10 +1,9 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import './App.css';
 import { Route, Routes, useNavigate } from 'react-router';
 import Login from './pages/login/login';
 import Dashboard from './pages/dashboard/dashboard';
 import { Box, useMediaQuery, useTheme } from "@mui/material";
-import UserContext from './contexts/userContext';
 import OffDayRequests from "./pages/requests/OffDayRequests";
 import ChangeShift from "./pages/requests/ChangeShift";
 import SideBar from "./components/SideBar";
@@ -13,7 +12,7 @@ import AllNurses from "./pages/allnurses/AllNurses";
 import Nurse from "./pages/particular-nurse/Nurse";
 
 function App() {
-  const { authenticated } = useContext(UserContext);
+  const authenticated = localStorage.getItem('authenticated') === 'true';
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();

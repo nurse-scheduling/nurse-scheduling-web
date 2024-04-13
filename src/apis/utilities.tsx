@@ -29,7 +29,7 @@ export async function postFetch(url: string, payload: any, credentials?: string)
         throw new Error("Something went wrong");
     }
 }
-export const useFetch = (url: string, credentials?: string) => {
+export const useFetch = (url: string, credentials?: string | null) => {
     const [isLoading, setIsLoading] = useState(true);
     const [data, setData] = useState<any>();
     const [error, setError] = useState<string>();
@@ -53,13 +53,13 @@ export const useFetch = (url: string, credentials?: string) => {
                 };
                 const response = await fetch(url, requestOptions);
                 if (response.status === 400) {
-                    throw new Error("Bad Request");
+                    setError("Bad Request");
                 }
                 if (response.status === 401) {
-                    throw new Error("Unauthorized");
+                    setError("Unauthorized");
                 }
                 if (!response.ok) {
-                    throw new Error(`Request failed with status ${response.status}`);
+                    setError(`Request failed with status ${response.status}`);
                 }
                 const responseData = await response.json();
                 setData(responseData);
@@ -80,7 +80,7 @@ export const useFetch = (url: string, credentials?: string) => {
     return { data, isLoading, error };
 };
 
-export async function patchFetch(url: string, payload: any, credentials?: string) {
+export async function patchFetch(url: string, payload: any, credentials?: string | null) {
     const headers: { [key: string]: string } = {
         'Content-Type': 'application/json',
         "Access-Control-Allow-Origin": "*",
