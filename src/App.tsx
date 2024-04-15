@@ -13,18 +13,33 @@ import Nurse from "./pages/particular-nurse/Nurse";
 
 function App() {
   const authenticated = localStorage.getItem('authenticated') === 'true';
+  const loginTime = localStorage.getItem('login-time');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
+
 
   useEffect(() => {
     const handleRedirect = () => {
       if (!authenticated) {
         navigate('/login');
+      } else {
+        if (loginTime) {
+          const currentTime = new Date().getTime();
+          const storedTime = parseInt(loginTime, 10);
+          const differenceInMinutes = Math.floor((currentTime - storedTime) / (1000 * 60));
+          if (differenceInMinutes >= 30) {
+            localStorage.clear();
+            navigate('/login');
+          }
+          else{
+            localStorage.setItem("login-time", new Date().getTime().toString());
+          }
+        }
       }
     };
     handleRedirect();
-  }, [authenticated, navigate]);
+  }, [authenticated, loginTime, navigate]);
 
   return (
       <Box>

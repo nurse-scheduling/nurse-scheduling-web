@@ -34,6 +34,7 @@ function Login() {
                 localStorage.setItem("nurse", JSON.stringify(data));
                 localStorage.setItem("basicAuth", credentials)
                 localStorage.setItem("authenticated", "true");
+                localStorage.setItem("login-time", new Date().getTime().toString());
                 navigate("/dashboard");
             }).catch((err) => {
             console.error("Login error:", err);
