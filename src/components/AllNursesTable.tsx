@@ -40,9 +40,11 @@ function AllNursesTable() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const basicAuth = localStorage.getItem("basicAuth");
-    const {nurses, isLoading} = useFetchNurses(page, rowsPerPage, basicAuth);
+    const loggedInNurse = JSON.parse(localStorage.getItem("nurse") as string);
+    const {nurses, isLoading} = useFetchNurses(page, rowsPerPage, basicAuth,loggedInNurse.departmentName);
     const navigate = useNavigate();
     const [data, setData] = React.useState<Data[]>([]);
+
 
     useEffect(() => {
         if (nurses) {

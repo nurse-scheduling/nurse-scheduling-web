@@ -2,8 +2,8 @@ import {BASE_URL} from "./auth";
 import {useFetch} from "./utilities";
 import {NurseType} from "../types/NurseType";
 
-export function useFetchNurses(page: number, size: number, credentials: string | null, sort?: string, order?: string) {
-    let url = `${BASE_URL}/api/nurses?page=${page}&size=${size}`;
+export function useFetchNurses(page: number, size: number, credentials: string | null,department:string, sort?: string, order?: string) {
+    let url = `${BASE_URL}/api/nurses?page=${page}&size=${size}&department=${department}`;
     if (sort && order) {
         url += `&sort=${sort},${order}`;
     }
@@ -28,5 +28,17 @@ export function useFetchNurse(id: string, credentials: string | null) {
     }
 
     return { nurse, isLoading, error };
+}
+
+export function useFetchShiftsByNurseId(id: string,month:string,year:string, credentials: string | null) {
+    const url = `${BASE_URL}/api/nurse/${id}/shifts?`;
+    const { data, isLoading, error } = useFetch(url, credentials);
+    let shifts: any[] | undefined;
+
+    if (data) {
+        shifts = data;
+    }
+
+    return { shifts, isLoading, error };
 }
 
