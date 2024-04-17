@@ -46,7 +46,6 @@ export const useFetch = (url: string, credentials?: string | null) => {
                 if (credentials) {
                     headers['Authorization'] = `Basic ${credentials}`;
                 }
-
                 const requestOptions = {
                     method: "GET",
                     headers: headers,

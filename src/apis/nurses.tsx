@@ -18,6 +18,20 @@ export function useFetchNurses(page: number, size: number, credentials: string |
     return { nurses, isLoading, error };
 }
 
+export function useFetchNursesList(credentials: string | null,department:string) {
+    let url = `${BASE_URL}/api/nurses?&department=${department}`;
+    
+    const { data, isLoading, error } = useFetch(url, credentials);
+
+    let nurses: NurseType[] | undefined;
+
+    if (data && data.content) {
+        nurses = data.content as NurseType[];
+    }
+
+    return { nurses, isLoading, error };
+}
+
 export function useFetchNurse(id: string, credentials: string | null) {
     const url = `${BASE_URL}/api/nurses/${id}`;
     const { data, isLoading, error } = useFetch(url, credentials);
@@ -30,15 +44,5 @@ export function useFetchNurse(id: string, credentials: string | null) {
     return { nurse, isLoading, error };
 }
 
-export function useFetchShiftsByNurseId(id: string,month:string,year:string, credentials: string | null) {
-    const url = `${BASE_URL}/api/nurse/${id}/shifts?`;
-    const { data, isLoading, error } = useFetch(url, credentials);
-    let shifts: any[] | undefined;
 
-    if (data) {
-        shifts = data;
-    }
-
-    return { shifts, isLoading, error };
-}
 

@@ -1,90 +1,94 @@
-import * as React from 'react';
+import React, {useEffect, useState} from "react";
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Box from '@mui/material/Box';
 import {Button, useMediaQuery, useTheme} from "@mui/material";
+import {useFetchNursesList} from "../../apis/nurses";
+import { exchangeShifts, useFetchShiftsByNurseId } from "../../apis/shifts";
+import {NurseType} from "../../types/NurseType";
+import { Navigate, useNavigate } from "react-router";
 
-interface Nurse {
-    name: string;
+interface Data {
+    avatar: string;
     id: string;
-    shifts: Shift[];
+    ad_soyad: string;
+    departman: string;
 }
-interface Shift {
-    id:string;
-    startDate: string;
-    endDate: string;
-    startTime: string;
-    endTime: string;
+interface ShiftData {
+    id: string,
+    startDate: Date,
+    endDate: Date,
+    nurseId: string
 }
+
 export default function ChangeShift() {
     const theme = useTheme();
-    const nurses: Nurse[] = [
-        {
-            name: 'Nurse 1',
-            id: "1",
-            shifts: [
-                { id: generateRandomId(), startDate: "01.01.2024", endDate: "01.01.2024", startTime: "08:00", endTime: "16:00" },
-                { id: generateRandomId(), startDate: "02.01.2024", endDate: "02.01.2024", startTime: "08:00", endTime: "16:00" }
-            ]
-        },
-        {
-            name: 'Nurse 2',
-            id: "2",
-            shifts: [
-                { id: generateRandomId(), startDate: "01.01.2024", endDate: "02.01.2024", startTime: "16:00", endTime: "00:00" },
-                { id: generateRandomId(), startDate: "02.01.2024", endDate: "03.01.2024", startTime: "16:00", endTime: "00:00" }
-            ]
-        },
-        {
-            name: 'Nurse 3',
-            id: "3",
-            shifts: [
-                { id: generateRandomId(), startDate: "01.01.2024", endDate: "01.01.2024", startTime: "12:00", endTime: "20:00" },
-                { id: generateRandomId(), startDate: "02.01.2024", endDate: "02.01.2024", startTime: "12:00", endTime: "20:00" }
-            ]
-        },
-        {
-            name: 'Nurse 4',
-            id: "4",
-            shifts: [
-                { id: generateRandomId(), startDate: "01.01.2024", endDate: "01.01.2024", startTime: "00:00", endTime: "08:00" },
-                { id: generateRandomId(), startDate: "02.01.2024", endDate: "02.01.2024", startTime: "00:00", endTime: "08:00" }
-            ]
-        },
-    ];
+    const basicAuth = localStorage.getItem("basicAuth");
+    const loggedInNurse = JSON.parse(localStorage.getItem("nurse") as string);
+    const { nurses } = useFetchNursesList(basicAuth,loggedInNurse.departmentName);
+    const navigation = useNavigate();
+    const [data, setData] = React.useState<Data[]>([]);
+    
+    useEffect(() => {
+        if (nurses) {
+            const newData = nurses.map((nurse: NurseType) => {
+                return {
+                    avatar: nurse.profilePicture,
+                    id: nurse.id,
+                    ad_soyad: `${nurse.firstName} ${nurse.lastName}`,
+                    departman: nurse.departmentName,
+                    
+                };
+            });
+            setData(newData);
+        }
+    }, [nurses]);
+    const month = new Date().getMonth().toString();
+    const year = new Date().getFullYear().toString();
+    
+    const [firstNurse, setFirstNurse] = React.useState<Data>();
+    const [secondNurse, setSecondNurse] = React.useState<Data>();
+    const [selectedFirstShift, setSelectedFirstShift] = React.useState<ShiftData>();
+    const [selectedSecondShift, setSelectedSecondShift] = React.useState<ShiftData>();
 
-    function generateRandomId() {
-        return Math.random().toString(36).substr(2, 9);
-    }
+    const { shifts: firstNurseShifts } = useFetchShiftsByNurseId(firstNurse?.id || "", "5", year, basicAuth)
+    const { shifts: secondNurseShifts } = useFetchShiftsByNurseId(secondNurse?.id || "", "5", year, basicAuth)
 
-    const [firstNurse, setFirstNurse] = React.useState<Nurse>();
-    const [secondNurse, setSecondNurse] = React.useState<Nurse>();
-    const [selectedFirstShift, setSelectedFirstShift] = React.useState<Shift>();
-    const [selectedSecondShift, setSelectedSecondShift] = React.useState<Shift>();
+    
 
     const handleFirstChange = (event: SelectChangeEvent) => {
         const selectedNurseId = (event.target.value);
-        const selectedNurse = nurses.find(nurse => nurse.id === selectedNurseId);
+        const selectedNurse = data.find(nurse => nurse.id === selectedNurseId);
         setFirstNurse(selectedNurse);
     };
     const handleSecondChange = (event: SelectChangeEvent) => {
         const selectedNurseId = (event.target.value);
-        const selectedNurse = nurses.find(nurse => nurse.id === selectedNurseId);
+        const selectedNurse = data.find(nurse => nurse.id === selectedNurseId);
         setSecondNurse(selectedNurse);
+        
     };
     const handleFirstShiftChange = (event: SelectChangeEvent) => {
         const selectedShiftId = event.target.value;
-        const selectedShift = firstNurse?.shifts.find(shift => shift.id === selectedShiftId);
+        const selectedShift = firstNurseShifts?.find(shift => shift.id === selectedShiftId);
         setSelectedFirstShift(selectedShift);
     }
     const handleSecondShiftChange = (event: SelectChangeEvent) => {
         const selectedShiftId = event.target.value;
-        const selectedShift = secondNurse?.shifts.find(shift => shift.id === selectedShiftId);
+        const selectedShift = secondNurseShifts?.find(shift => shift.id === selectedShiftId);
         setSelectedSecondShift(selectedShift);
     }
+    const handleExchange = () => {
+        if(firstNurse && secondNurse && selectedFirstShift && selectedSecondShift){
+            exchangeShifts(firstNurse?.id, secondNurse?.id, selectedFirstShift?.id, selectedSecondShift?.id, basicAuth).then(() => {
+                navigation("/dashboard")
+            }).catch(error => {
+                console.error(error)
+            })
+        }
 
+    }
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const styles = {
@@ -123,8 +127,8 @@ export default function ChangeShift() {
                                 label="Birinci Hemşire"
                                 onChange={handleFirstChange}
                             >
-                                {nurses.map((nurse) => (
-                                    <MenuItem key={nurse.id} value={nurse.id}>{nurse.name}</MenuItem>
+                                {data.map((nurse) => (
+                                    <MenuItem key={nurse.id} value={nurse.id}>{nurse.ad_soyad}</MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
@@ -140,8 +144,8 @@ export default function ChangeShift() {
                                 onChange={handleFirstShiftChange}
                                 disabled={!firstNurse}
                             >
-                                {firstNurse?.shifts.map((shift) => (
-                                    <MenuItem key={shift.id} value={shift.id}>{`${shift.startDate} - ${shift.endDate} / ${shift.startTime} - ${shift.endTime}`}</MenuItem>
+                                {firstNurseShifts?.map((shift) => (
+                                    <MenuItem key={shift.id} value={shift.id}>{`${shift.startDate} - ${shift.endDate} `}</MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
@@ -158,8 +162,8 @@ export default function ChangeShift() {
                                 label="İkinci Hemşire"
                                 onChange={handleSecondChange}
                             >
-                                {nurses.map((nurse) => (
-                                    <MenuItem key={nurse.id} value={nurse.id}>{nurse.name}</MenuItem>
+                                {data.map((nurse) => (
+                                    <MenuItem key={nurse.id} value={nurse.id}>{nurse.ad_soyad}</MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
@@ -175,13 +179,13 @@ export default function ChangeShift() {
                                 onChange={handleSecondShiftChange}
                                 disabled={!secondNurse}
                             >
-                                {secondNurse?.shifts.map((shift) => (
-                                    <MenuItem key={shift.id} value={shift.id}>{`${shift.startDate} - ${shift.endDate} / ${shift.startTime} - ${shift.endTime}`}</MenuItem>
+                                {secondNurseShifts?.map((shift) => (
+                                    <MenuItem key={shift.id} value={shift.id}>{`${shift.startDate} - ${shift.endDate} `}</MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
                     </Box>
-                    <Button disabled={!firstNurse || !secondNurse ||firstNurse?.id===secondNurse?.id} variant="contained" sx={{ m: 1, minWidth: 250, maxWidth:250}} size="large">Değiştir</Button>
+                    <Button onClick={handleExchange} disabled={!firstNurse || !secondNurse ||firstNurse?.id===secondNurse?.id} variant="contained" sx={{ m: 1, minWidth: 250, maxWidth:250}} size="large">Değiştir</Button>
                 </Box>
             </Box>
         </Box>
