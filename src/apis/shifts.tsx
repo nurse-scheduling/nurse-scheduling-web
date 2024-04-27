@@ -2,19 +2,19 @@ import {BASE_URL} from "./auth";
 import {useFetch, patchFetch} from "./utilities";
 import {ShiftType} from "../types/ShiftType";
 
-export function useFetchShiftsByNurseId(id: string, month: string, year: string, credentials: string | null) {
+export function useFetchShiftsByNurseId(id: string,credentials: string | null) {
 
-    let url = `${BASE_URL}/api/nurses/${id}/shifts?month=${month}&year=${year}`;
-    
-    const { data } = useFetch(url, credentials);
-    
-    let shifts : ShiftType[] | undefined;
-    
+    let url = `${BASE_URL}/api/nurses/${id}/shifts`;
+
+    const {data,isLoading} = useFetch(url, credentials);
+
+    let shifts: ShiftType[] | undefined;
+
     if (data) {
         shifts = data as ShiftType[];
     }
-   
-    return { shifts };
+
+    return {shifts,isLoading};
 }
 
 export const exchangeShifts = async (firstNurseId: string, secondNurseId: string, firstShiftId: string, secondShiftId: string, credentials: string | null) => {
@@ -29,4 +29,19 @@ export const exchangeShifts = async (firstNurseId: string, secondNurseId: string
 
     return await patchFetch(url, payload, credentials);
 
+}
+
+export function useFetchAllShits(credentials: string | null) {
+
+    const url = `${BASE_URL}/api/shifts`;
+
+    const {data,isLoading} = useFetch(url, credentials);
+
+    let shifts: ShiftType[] | undefined;
+
+    if (data) {
+        shifts = data as ShiftType[];
+    }
+
+    return {shifts,isLoading};
 }

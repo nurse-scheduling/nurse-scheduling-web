@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -8,7 +8,7 @@ import {Button, useMediaQuery, useTheme} from "@mui/material";
 import {useFetchNursesList} from "../../apis/nurses";
 import { exchangeShifts, useFetchShiftsByNurseId } from "../../apis/shifts";
 import {NurseType} from "../../types/NurseType";
-import { Navigate, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 interface Data {
     avatar: string;
@@ -30,7 +30,7 @@ export default function ChangeShift() {
     const { nurses } = useFetchNursesList(basicAuth,loggedInNurse.departmentName);
     const navigation = useNavigate();
     const [data, setData] = React.useState<Data[]>([]);
-    
+
     useEffect(() => {
         if (nurses) {
             const newData = nurses.map((nurse: NurseType) => {
@@ -39,24 +39,22 @@ export default function ChangeShift() {
                     id: nurse.id,
                     ad_soyad: `${nurse.firstName} ${nurse.lastName}`,
                     departman: nurse.departmentName,
-                    
+
                 };
             });
             setData(newData);
         }
     }, [nurses]);
-    const month = new Date().getMonth().toString();
-    const year = new Date().getFullYear().toString();
-    
+
     const [firstNurse, setFirstNurse] = React.useState<Data>();
     const [secondNurse, setSecondNurse] = React.useState<Data>();
     const [selectedFirstShift, setSelectedFirstShift] = React.useState<ShiftData>();
     const [selectedSecondShift, setSelectedSecondShift] = React.useState<ShiftData>();
 
-    const { shifts: firstNurseShifts } = useFetchShiftsByNurseId(firstNurse?.id || "", "5", year, basicAuth)
-    const { shifts: secondNurseShifts } = useFetchShiftsByNurseId(secondNurse?.id || "", "5", year, basicAuth)
+    const { shifts: firstNurseShifts } = useFetchShiftsByNurseId(firstNurse?.id || "", basicAuth)
+    const { shifts: secondNurseShifts } = useFetchShiftsByNurseId(secondNurse?.id || "", basicAuth)
 
-    
+
 
     const handleFirstChange = (event: SelectChangeEvent) => {
         const selectedNurseId = (event.target.value);
@@ -67,7 +65,7 @@ export default function ChangeShift() {
         const selectedNurseId = (event.target.value);
         const selectedNurse = data.find(nurse => nurse.id === selectedNurseId);
         setSecondNurse(selectedNurse);
-        
+
     };
     const handleFirstShiftChange = (event: SelectChangeEvent) => {
         const selectedShiftId = event.target.value;

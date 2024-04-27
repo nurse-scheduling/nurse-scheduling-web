@@ -1,17 +1,21 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import trLocale from '@fullcalendar/core/locales/tr';
 import {Box, Modal, Typography, useMediaQuery, useTheme} from '@mui/material';
+import {ShiftType} from "../types/ShiftType";
 
 interface SelectedEvent {
     title: string;
     startDate: Date | null;
     endDate: Date | null;
 }
+type Props = {
+    shifts: ShiftType[];
+}
 
-function WorkCalendar() {
+function WorkCalendar(props: Props) {
     const [open, setOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<SelectedEvent>({
         endDate: null,
@@ -20,6 +24,21 @@ function WorkCalendar() {
     });
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const [events, setEvents] = useState<any[]>([]);
+    const {shifts} = props;
+
+    useEffect(() => {
+        if(shifts){
+            const events = shifts.map(shift => {
+                return {
+                    title: shift.nurseFirstName + ' ' + shift.nurseLastName,
+                    start: shift.startDate,
+                    end: shift.endDate
+                }
+            });
+            setEvents(events);
+        }
+    }, [shifts]);
     const openModal = () => {
         setOpen(true);
     };
@@ -49,12 +68,7 @@ function WorkCalendar() {
             <FullCalendar
                 plugins={[dayGridPlugin, timeGridPlugin]}
                 initialView="dayGridMonth"
-                events={[
-                    { title: 'Hüseyin Emre Üğdül', start: '2024-01-06T07:00:00', end: '2024-01-06T12:30:00' },
-                    { title: 'Mert Batuhan Ünverdi', start: '2024-01-06T12:30:00', end: '2024-01-06T18:30:00' },
-                    { title: 'Mert Batuhan Ünverdi', start: '2024-01-07T12:30:00', end: '2024-01-07T18:30:00' },
-                    { title: 'Hüseyin Emre Üğdül', start: '2024-01-07T18:30:00', end: '2024-01-08T07:30:00' },
-                ]}
+                events={events}
                 headerToolbar={{
                     left: 'prev,next',
                     center: 'title',
