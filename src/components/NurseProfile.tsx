@@ -15,7 +15,7 @@ import {NurseType} from "../types/NurseType";
     const { nurse } = props;
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
+  
     return (
       <Grid container spacing={2} marginTop={isMobile ? theme.spacing(10) : theme.spacing(2)}>
         <Grid
@@ -28,7 +28,8 @@ import {NurseType} from "../types/NurseType";
         >
           <Avatar
             alt="Nurse"
-            src={nurse.profilePicture?nurse.profilePicture:"https://cdn-icons-png.flaticon.com/512/8496/8496122.png"}
+            src={nurse.profilePicture?nurse.profilePicture:nurse.gender === "Kadın" ? "https://st3.depositphotos.com/1005049/37682/v/1600/depositphotos_376829398-stock-illustration-woman-doctor-icon-female-physician.jpg" :
+            "https://st4.depositphotos.com/1005049/37803/v/1600/depositphotos_378039344-stock-illustration-doctor-icon-male-doctor-white.jpg"}
             sx={{
                 width: "55%",
                 height: "auto",

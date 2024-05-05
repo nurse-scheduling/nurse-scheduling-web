@@ -9,5 +9,6 @@ export type NurseType={
     phoneNumber: string,
     profilePicture: string,
     errorMessage: string,
+    gender: string,
     [key: string]: string
 }

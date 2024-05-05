@@ -50,7 +50,8 @@ function AllNursesTable() {
         if (nurses) {
             const newData = nurses.map((nurse: NurseType) => {
                 return {
-                    avatar: nurse.profilePicture,
+                    avatar: nurse.profilePicture?nurse.profilePicture:nurse.gender === "Kadın" ? "https://st3.depositphotos.com/1005049/37682/v/1600/depositphotos_376829398-stock-illustration-woman-doctor-icon-female-physician.jpg" :
+                    "https://st4.depositphotos.com/1005049/37803/v/1600/depositphotos_378039344-stock-illustration-doctor-icon-male-doctor-white.jpg",
                     id: nurse.id,
                     ad_soyad: `${nurse.firstName} ${nurse.lastName}`,
                     departman: nurse.departmentName,
