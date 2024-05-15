@@ -4,7 +4,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import trLocale from '@fullcalendar/core/locales/tr';
 import {Box, Modal, Typography, useMediaQuery, useTheme} from '@mui/material';
-import {ShiftType} from "../types/ShiftType";
+import {useFetchAllShits} from "../apis/shifts";
 
 interface SelectedEvent {
     title: string;
@@ -12,7 +12,7 @@ interface SelectedEvent {
     endDate: Date | null;
 }
 type Props = {
-    shifts: ShiftType[];
+    nurseId?: string;
 }
 
 function WorkCalendar(props: Props) {
@@ -25,9 +25,17 @@ function WorkCalendar(props: Props) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const [events, setEvents] = useState<any[]>([]);
-    const {shifts} = props;
+    const [month,setMonth] = React.useState(new Date().getMonth().toString());
+    const [year,setYear] = React.useState(new Date().getFullYear().toString());
+    const basicAuth = localStorage.getItem('basicAuth');
+    const {shifts,isLoading} = useFetchAllShits(month,year,basicAuth,props.nurseId);
+
+
+    console.log(selectedEvent);
+
 
     useEffect(() => {
+        setEvents([]);
         if(shifts){
             const events = shifts.map(shift => {
                 return {
@@ -66,14 +74,18 @@ function WorkCalendar(props: Props) {
     return (
         <Box sx={{marginTop:isMobile?'75px':'0px'}}>
             <FullCalendar
+                datesSet={(dateInfo) => {
+                    setMonth((dateInfo.view.currentStart.getMonth()).toString());
+                    setYear(dateInfo.view.currentStart.getFullYear().toString());
+                }}
                 plugins={[dayGridPlugin, timeGridPlugin]}
                 initialView="dayGridMonth"
-                events={events}
                 headerToolbar={{
                     left: 'prev,next',
                     center: 'title',
                     right: 'timeGridWeek,dayGridMonth',
                 }}
+                events={events}
                 locales={[trLocale]}
                 locale="tr"
                 timeZone="local"

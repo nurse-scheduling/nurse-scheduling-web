@@ -50,9 +50,10 @@ export default function ChangeShift() {
     const [secondNurse, setSecondNurse] = React.useState<Data>();
     const [selectedFirstShift, setSelectedFirstShift] = React.useState<ShiftData>();
     const [selectedSecondShift, setSelectedSecondShift] = React.useState<ShiftData>();
-
-    const { shifts: firstNurseShifts } = useFetchShiftsByNurseId(firstNurse?.id || "", basicAuth)
-    const { shifts: secondNurseShifts } = useFetchShiftsByNurseId(secondNurse?.id || "", basicAuth)
+    const month = new Date().getMonth().toString();
+    const year = new Date().getFullYear().toString();
+    const { shifts: firstNurseShifts } = useFetchShiftsByNurseId(firstNurse?.id || "", basicAuth,month,year);
+    const { shifts: secondNurseShifts } = useFetchShiftsByNurseId(secondNurse?.id || "", basicAuth,month,year);
 
 
 

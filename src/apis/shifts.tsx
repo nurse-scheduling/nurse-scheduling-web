@@ -2,9 +2,10 @@ import {BASE_URL} from "./auth";
 import {useFetch, patchFetch} from "./utilities";
 import {ShiftType} from "../types/ShiftType";
 
-export function useFetchShiftsByNurseId(id: string,credentials: string | null) {
+export function useFetchShiftsByNurseId(id: string,credentials: string | null,month:string,year:string) {
 
-    let url = `${BASE_URL}/api/nurses/${id}/shifts`;
+    let url = `${BASE_URL}/api/nurses/${id}/shifts?month=${month}&year=${year}`;
+
 
     const {data,isLoading} = useFetch(url, credentials);
 
@@ -31,9 +32,14 @@ export const exchangeShifts = async (firstNurseId: string, secondNurseId: string
 
 }
 
-export function useFetchAllShits(credentials: string | null) {
+export function useFetchAllShits(month:string,year:string,credentials: string | null,id?:string) {
+    let url;
+    if(id){
+         url = `${BASE_URL}/api/nurses/${id}/shifts?month=${month}&year=${year}`;
+    }else{
+        url = `${BASE_URL}/api/shifts?month=${month}&year=${year}`;
+    }
 
-    const url = `${BASE_URL}/api/shifts`;
 
     const {data,isLoading} = useFetch(url, credentials);
 
