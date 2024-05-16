@@ -45,7 +45,7 @@ import {NurseType} from "../types/NurseType";
           >
             {Object.keys(nurse).map(
               (key) =>
-                  (key !== "profilePicture" && key !== "id" && key!=='errorMessage' && key!=="role" && key!=="phoneNumber") && (
+                  (key !== "profilePicture" && key !== "id" && key!=='errorMessage' && key!=="role" && key!=="phoneNumber" && key !== "pictureUrl") && (
                   <TextField
                     key={key}
                     id={key}

@@ -13,6 +13,7 @@ import {OffDayType} from "../types/OffDayType";
 import SkeletonLoaderList from "./SkeletonLoader";
 import {Column, OffDayRequest} from "../interfaces/OffDayRequest";
 import CustomTableRow from "./CustomTableRow";
+import { Console } from "console";
 
 
 const columns: Column[] = [
@@ -61,11 +62,13 @@ function OffDayRequestTable() {
     useEffect(() => {
         if (offDays) {
             const newData = offDays.map((offDay: OffDayType) => {
-                const {id, nurseName, nurseProfilePicture, date, status} = offDay;
+                const {id, nurseName, nurseProfilePicture, date, status, nurseGender} = offDay;
                 return {
-                    avatar: nurseProfilePicture,
+                    avatar: nurseProfilePicture?nurseProfilePicture:nurseGender === "Kadın" ? "https://st3.depositphotos.com/1005049/37682/v/1600/depositphotos_376829398-stock-illustration-woman-doctor-icon-female-physician.jpg" :
+                    "https://st4.depositphotos.com/1005049/37803/v/1600/depositphotos_378039344-stock-illustration-doctor-icon-male-doctor-white.jpg",
                     id: id,
                     ad_soyad: nurseName,
+                    gender: nurseGender,
                     izin_tarih: date,
                     durum: status === 'PENDING' ? 'Beklemede' : status === 'ACCEPTED' ? 'Kabul' : 'Red',
                     onay: undefined,
@@ -75,7 +78,7 @@ function OffDayRequestTable() {
             setData(newData);
         }
     }, [offDays]);
-
+    
 
     const handleApprove = (id: string) => {
         updateOffDayStatus(id, 'ACCEPTED', basicAuth).then(updatedOffDay => {

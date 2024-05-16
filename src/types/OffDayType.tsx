@@ -4,6 +4,7 @@ export type OffDayType={
     date: string,
     status: string,
     nurseName: string,
+    nurseGender: string,
     nurseProfilePicture: string,
     totalCount: number,
     [key: string]: string | number
