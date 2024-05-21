@@ -19,8 +19,8 @@ export function useFetchNurses(page: number, size: number, credentials: string |
 }
 
 export function useFetchNursesList(credentials: string | null,department:string) {
-    let url = `${BASE_URL}/api/nurses?&department=${department}`;
-    
+    let url = `${BASE_URL}/api/nurses?department=${department}`;
+
     const { data, isLoading, error } = useFetch(url, credentials);
 
     let nurses: NurseType[] | undefined;

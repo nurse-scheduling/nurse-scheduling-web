@@ -10,6 +10,7 @@ import SideBar from "./components/SideBar";
 import NurseProfile from "./pages/profile/profile";
 import AllNurses from "./pages/allnurses/AllNurses";
 import Nurse from "./pages/particular-nurse/Nurse";
+import Constraint from "./pages/constraint/Constraint";
 
 function App() {
   const authenticated = localStorage.getItem('authenticated') === 'true';
@@ -59,6 +60,7 @@ function App() {
                   <Route element={<NurseProfile />} path='/profile' />
                   <Route element={<AllNurses />} path='/nurses' />
                   <Route element={<Nurse />} path='/nurse/:id' />
+                  <Route element={<Constraint/> } path='/constraint' />
                 </Routes>
               </Box>
             </Box>

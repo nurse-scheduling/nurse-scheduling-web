@@ -22,7 +22,7 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import ListIcon from "@mui/icons-material/List";
 import { useNavigate } from "react-router-dom";
 import UserContext from "../contexts/userContext";
-import { Menu } from "@mui/icons-material";
+import {AssignmentLate, Menu} from "@mui/icons-material";
 const drawerWidth = 240;
 
 interface Props {
@@ -81,6 +81,11 @@ function SideBar(props: Props) {
                         navigate("/dashboard")
                     }
                 },
+                    {
+                        text: "Kısıtlamalar", icon: <AssignmentLate />, onClick: () => {
+                            navigate("/constraint")
+                        }
+                    },
                     {
                         text: "Profil", icon: <PersonIcon />, onClick: () => {
                             navigate("/profile")

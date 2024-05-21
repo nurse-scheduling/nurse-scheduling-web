@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 
-export async function postFetch(url: string, payload: any, credentials?: string) {
+export async function postFetch(url: string, payload: any, credentials?: string | null) {
     const headers: { [key: string]: string } = {
         'Content-Type': 'application/json',
         "Access-Control-Allow-Origin": "*",
@@ -20,13 +20,13 @@ export async function postFetch(url: string, payload: any, credentials?: string)
     if (requestOptions.status === 200) {
         return response;
     } else if (requestOptions.status === 400) {
-        throw new Error("Bad Request");
+        throw new Error(response.message || "Bad Request");
     } else if (requestOptions.status === 401) {
-        throw new Error("Unauthorized");
+        throw new Error(response.message || "Unauthorized");
     } else if (requestOptions.status === 403) {
-        throw new Error("Forbidden");
+        throw new Error(response.message || "Forbidden");
     } else {
-        throw new Error("Something went wrong");
+        throw new Error(response.message || "Something went wrong");
     }
 }
 export const useFetch = (url: string, credentials?: string | null) => {

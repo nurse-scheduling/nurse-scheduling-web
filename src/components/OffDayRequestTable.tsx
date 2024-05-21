@@ -13,7 +13,6 @@ import {OffDayType} from "../types/OffDayType";
 import SkeletonLoaderList from "./SkeletonLoader";
 import {Column, OffDayRequest} from "../interfaces/OffDayRequest";
 import CustomTableRow from "./CustomTableRow";
-import { Console } from "console";
 
 
 const columns: Column[] = [
@@ -78,7 +77,7 @@ function OffDayRequestTable() {
             setData(newData);
         }
     }, [offDays]);
-    
+
 
     const handleApprove = (id: string) => {
         updateOffDayStatus(id, 'ACCEPTED', basicAuth).then(updatedOffDay => {
