@@ -31,7 +31,6 @@ function WorkCalendar(props: Props) {
     const {shifts,isLoading} = useFetchAllShits(month,year,basicAuth,props.nurseId);
 
 
-    console.log(selectedEvent);
 
 
     useEffect(() => {
