@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -6,7 +6,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Box from '@mui/material/Box';
 import {Button, useMediaQuery, useTheme} from "@mui/material";
 import {useFetchNursesList} from "../../apis/nurses";
-import { exchangeShifts, useFetchShiftsByNurseId } from "../../apis/shifts";
+import {exchangeShifts, useFetchAvailableShiftsByNurseIdAndShift, useFetchShiftsByNurseId} from "../../apis/shifts";
 import {NurseType} from "../../types/NurseType";
 import { useNavigate } from "react-router";
 
@@ -46,18 +46,19 @@ export default function ChangeShift() {
         }
     }, [nurses]);
 
-    const [firstNurse, setFirstNurse] = React.useState<Data>();
-    const [secondNurse, setSecondNurse] = React.useState<Data>();
-    const [selectedFirstShift, setSelectedFirstShift] = React.useState<ShiftData>();
-    const [selectedSecondShift, setSelectedSecondShift] = React.useState<ShiftData>();
-    const month = new Date().getMonth().toString();
+    const [firstNurse, setFirstNurse] = useState<Data>();
+    const [secondNurse, setSecondNurse] = useState<Data>();
+    const [selectedFirstShift, setSelectedFirstShift] = useState<ShiftData>();
+    const [selectedSecondShift, setSelectedSecondShift] = useState<ShiftData>();
+    const month = (new Date().getMonth()+2).toString();
     const year = new Date().getFullYear().toString();
     const { shifts: firstNurseShifts } = useFetchShiftsByNurseId(firstNurse?.id || "", basicAuth,month,year);
-    const { shifts: secondNurseShifts } = useFetchShiftsByNurseId(secondNurse?.id || "", basicAuth,month,year);
+    const { shifts: secondNurseShifts } = useFetchAvailableShiftsByNurseIdAndShift(secondNurse?.id || "", basicAuth,month,year,selectedFirstShift?.id || "");
 
 
 
     const handleFirstChange = (event: SelectChangeEvent) => {
+        console.log(month);
         const selectedNurseId = (event.target.value);
         const selectedNurse = data.find(nurse => nurse.id === selectedNurseId);
         setFirstNurse(selectedNurse);
@@ -89,6 +90,17 @@ export default function ChangeShift() {
 
     }
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const formatDateForTurkey = (dateString: string): string => {
+        const options: Intl.DateTimeFormatOptions = {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        };
+        const date = new Date(dateString);
+        return new Intl.DateTimeFormat('tr-TR', options).format(date);
+    };
 
     const styles = {
         changeShiftBox: {
@@ -144,7 +156,7 @@ export default function ChangeShift() {
                                 disabled={!firstNurse}
                             >
                                 {firstNurseShifts?.map((shift) => (
-                                    <MenuItem key={shift.id} value={shift.id}>{`${shift.startDate} - ${shift.endDate} `}</MenuItem>
+                                    <MenuItem key={shift.id} value={shift.id}>{`${formatDateForTurkey(shift.startDate.toString())} - ${formatDateForTurkey(shift.endDate.toString())}`}</MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
@@ -179,7 +191,7 @@ export default function ChangeShift() {
                                 disabled={!secondNurse}
                             >
                                 {secondNurseShifts?.map((shift) => (
-                                    <MenuItem key={shift.id} value={shift.id}>{`${shift.startDate} - ${shift.endDate} `}</MenuItem>
+                                    <MenuItem key={shift.id} value={shift.id}>{`${formatDateForTurkey(shift.startDate.toString())} - ${formatDateForTurkey(shift.endDate.toString())}`}</MenuItem>
                                 ))}
                             </Select>
                         </FormControl>

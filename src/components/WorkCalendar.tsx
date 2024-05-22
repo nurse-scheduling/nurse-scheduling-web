@@ -74,7 +74,7 @@ function WorkCalendar(props: Props) {
         <Box sx={{marginTop:isMobile?'75px':'0px'}}>
             <FullCalendar
                 datesSet={(dateInfo) => {
-                    setMonth((dateInfo.view.currentStart.getMonth()).toString());
+                    setMonth((dateInfo.view.currentStart.getMonth()+1).toString());
                     setYear(dateInfo.view.currentStart.getFullYear().toString());
                 }}
                 plugins={[dayGridPlugin, timeGridPlugin]}
