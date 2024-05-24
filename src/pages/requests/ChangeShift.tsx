@@ -5,7 +5,7 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Box from '@mui/material/Box';
 import {Button, useMediaQuery, useTheme} from "@mui/material";
-import {useFetchNursesList} from "../../apis/nurses";
+import {useFetchNursesAsAList} from "../../apis/nurses";
 import {exchangeShifts, useFetchAvailableShiftsByNurseIdAndShift, useFetchShiftsByNurseId} from "../../apis/shifts";
 import {NurseType} from "../../types/NurseType";
 import { useNavigate } from "react-router";
@@ -27,13 +27,16 @@ export default function ChangeShift() {
     const theme = useTheme();
     const basicAuth = localStorage.getItem("basicAuth");
     const loggedInNurse = JSON.parse(localStorage.getItem("nurse") as string);
-    const { nurses } = useFetchNursesList(basicAuth,loggedInNurse.departmentName);
+    const { nurses } = useFetchNursesAsAList(basicAuth,loggedInNurse.departmentName);
     const navigation = useNavigate();
     const [data, setData] = React.useState<Data[]>([]);
 
     useEffect(() => {
         if (nurses) {
-            const newData = nurses.map((nurse: NurseType) => {
+            let nurseList = nurses.filter((nurse: NurseType) => nurse.role === "NURSE");
+
+            console.log(nurseList);
+            const newData = nurseList.map((nurse: NurseType) => {
                 return {
                     avatar: nurse.profilePicture,
                     id: nurse.id,

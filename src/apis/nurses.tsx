@@ -44,5 +44,17 @@ export function useFetchNurse(id: string, credentials: string | null) {
     return { nurse, isLoading, error };
 }
 
+export function useFetchNursesAsAList(credentials: string | null,department:string) {
+    let url = `${BASE_URL}/api/nurses/listNurses?department=${department}`;
+
+    const { data, isLoading, error } = useFetch(url, credentials);
+
+    let nurses: NurseType[] | undefined;
+
+    if(data){
+        nurses = data as NurseType[];
+    }
+    return { nurses, isLoading, error };
+}
 
 

@@ -92,11 +92,6 @@ function SideBar(props: Props) {
                         }
                     },
                     {
-                        text: "İzin İstekleri", icon: <ListIcon />, onClick: () => {
-                            navigate("/off-day-requests")
-                        }
-                    },
-                    {
                         text: "Vardiya Değişimi", icon: <ListIcon />, onClick: () => {
                             navigate("/change-shifts")
                         }
