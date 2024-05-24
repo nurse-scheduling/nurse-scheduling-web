@@ -15,7 +15,7 @@ import {NurseType} from "../types/NurseType";
     const { nurse } = props;
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  
+
     return (
       <Grid container spacing={2} marginTop={isMobile ? theme.spacing(10) : theme.spacing(2)}>
         <Grid
@@ -43,25 +43,76 @@ import {NurseType} from "../types/NurseType";
             direction="column"
             alignItems={isMobile ? "center" : "flex-start"}
           >
-            {Object.keys(nurse).map(
-              (key) =>
-                  (key !== "profilePicture" && key !== "id" && key!=='errorMessage' && key!=="role" && key!=="phoneNumber" && key !== "pictureUrl") && (
-                  <TextField
-                    key={key}
-                    id={key}
-                    label={key.charAt(0).toUpperCase() + key.slice(1)}
-                    value={nurse[key]}
-                    InputProps={{
-                      readOnly: true,
-                    }}
-                    style={{
-                      width: "70%", // Set your desired width
-                      marginTop: theme.spacing(1),
-                      marginBottom: theme.spacing(1),
-                    }}
-                  />
-                )
-            )}
+            <TextField
+                key={nurse.tcKimlikNo}
+                id={"tc"}
+                label={"TC Kimlik Numarası"}
+                value={nurse.tcKimlikNo}
+                InputProps={{
+                    readOnly: true,
+                }}
+                style={{
+                    width: "70%",
+                    marginTop: theme.spacing(1),
+                    marginBottom: theme.spacing(1),
+                }}
+            />
+            <TextField
+                key={nurse.firstName}
+                id={"firstName"}
+                label={"Adı"}
+                value={nurse.firstName}
+                InputProps={{
+                    readOnly: true,
+                }}
+                style={{
+                    width: "70%",
+                    marginTop: theme.spacing(1),
+                    marginBottom: theme.spacing(1),
+                }}
+            />
+            <TextField
+                key={nurse.lastName}
+                id={"lastName"}
+                label={"Soyadı"}
+                value={nurse.lastName}
+                InputProps={{
+                    readOnly: true,
+                }}
+                style={{
+                    width: "70%",
+                    marginTop: theme.spacing(1),
+                    marginBottom: theme.spacing(1),
+                }}
+            />
+            <TextField
+                key={nurse.departmentName}
+                id={"departmentName"}
+                label={"Departmanı"}
+                value={nurse.departmentName}
+                InputProps={{
+                    readOnly: true,
+                }}
+                style={{
+                    width: "70%",
+                    marginTop: theme.spacing(1),
+                    marginBottom: theme.spacing(1),
+                }}
+            />
+            <TextField
+                key={nurse.birthDate}
+                id={"birthDate"}
+                label={"Doğum Tarihi"}
+                value={nurse.birthDate || nurse.birthdate}
+                InputProps={{
+                    readOnly: true,
+                }}
+                style={{
+                    width: "70%",
+                    marginTop: theme.spacing(1),
+                    marginBottom: theme.spacing(1),
+                }}
+            />
 
         </Grid>
 
