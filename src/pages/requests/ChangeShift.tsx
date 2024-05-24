@@ -4,11 +4,10 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Box from '@mui/material/Box';
-import {Button, useMediaQuery, useTheme} from "@mui/material";
+import {Alert, AlertColor, Button, useMediaQuery, useTheme} from "@mui/material";
 import {useFetchNursesAsAList} from "../../apis/nurses";
 import {exchangeShifts, useFetchAvailableShiftsByNurseIdAndShift, useFetchShiftsByNurseId} from "../../apis/shifts";
 import {NurseType} from "../../types/NurseType";
-import { useNavigate } from "react-router";
 
 interface Data {
     avatar: string;
@@ -28,8 +27,9 @@ export default function ChangeShift() {
     const basicAuth = localStorage.getItem("basicAuth");
     const loggedInNurse = JSON.parse(localStorage.getItem("nurse") as string);
     const { nurses } = useFetchNursesAsAList(basicAuth,loggedInNurse.departmentName);
-    const navigation = useNavigate();
     const [data, setData] = React.useState<Data[]>([]);
+    const [message,setMessage] = useState<string>("");
+    const [messageType,setMessageType] = useState<AlertColor>("error");
 
     useEffect(() => {
         if (nurses) {
@@ -44,7 +44,7 @@ export default function ChangeShift() {
                     departman: nurse.departmentName,
 
                 };
-            });
+            }).sort((a, b) => a.ad_soyad.localeCompare(b.ad_soyad));
             setData(newData);
         }
     }, [nurses]);
@@ -58,10 +58,23 @@ export default function ChangeShift() {
     const { shifts: firstNurseShifts } = useFetchShiftsByNurseId(firstNurse?.id || "", basicAuth,month,year);
     const { shifts: secondNurseShifts } = useFetchAvailableShiftsByNurseIdAndShift(secondNurse?.id || "", basicAuth,month,year,selectedFirstShift?.id || "");
 
+    useEffect(() => {
+        if(firstNurseShifts){
+            const today = new Date();
 
+            firstNurseShifts.filter((shift)=> shift.startDate>today)
+                .sort((a,b) =>new Date(a.startDate).getTime() -new Date(b.startDate).getTime());
+        }
+    }, [firstNurseShifts]);
+    useEffect(() => {
+        if(secondNurseShifts){
+            const today = new Date();
+            secondNurseShifts.filter((shift)=> shift.startDate>today)
+                .sort((a,b) =>new Date(a.startDate).getTime() -new Date(b.startDate).getTime());
+        }
+    }, [secondNurseShifts]);
 
     const handleFirstChange = (event: SelectChangeEvent) => {
-        console.log(month);
         const selectedNurseId = (event.target.value);
         const selectedNurse = data.find(nurse => nurse.id === selectedNurseId);
         setFirstNurse(selectedNurse);
@@ -85,9 +98,11 @@ export default function ChangeShift() {
     const handleExchange = () => {
         if(firstNurse && secondNurse && selectedFirstShift && selectedSecondShift){
             exchangeShifts(firstNurse?.id, secondNurse?.id, selectedFirstShift?.id, selectedSecondShift?.id, basicAuth).then(() => {
-                navigation("/dashboard")
+                setMessage("Vardiyalar başarıyla değiştirildi");
+                setMessageType("success");
             }).catch(error => {
-                console.error(error)
+                setMessage("Vardiyaları değişirken bir hata oluştu");
+                setMessageType("error");
             })
         }
 
@@ -124,11 +139,13 @@ export default function ChangeShift() {
             marginTop: isMobile ? "40vh" : "30vh",
             padding: isMobile ? "20px" : "50px",
             width: isMobile ? "100%" : "auto",
+            flexDirection: "column",
         },
     };
 
     return (
         <Box sx={styles.container}>
+            {message && <Alert severity={messageType} style={{marginBottom:'6vh'}}>{message}</Alert>}
             <Box sx={styles.changeShiftBox}>
                 <Box sx={{flexDirection:'column'}}>
                     <Box>
@@ -191,7 +208,7 @@ export default function ChangeShift() {
                                 value={selectedSecondShift?selectedSecondShift.id:""}
                                 label="İkinci Hemşire Vardiya"
                                 onChange={handleSecondShiftChange}
-                                disabled={!secondNurse}
+                                disabled={!secondNurse || secondNurseShifts?.length === 0}
                             >
                                 {secondNurseShifts?.map((shift) => (
                                     <MenuItem key={shift.id} value={shift.id}>{`${formatDateForTurkey(shift.startDate.toString())} - ${formatDateForTurkey(shift.endDate.toString())}`}</MenuItem>
