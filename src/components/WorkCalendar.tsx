@@ -32,19 +32,21 @@ function WorkCalendar(props: Props) {
     const {shifts} = useFetchAllShifts(month,year,basicAuth,props.nurseId);
 
     useEffect(() => {
-        setEvents([]);
-        if(shifts){
-            const events = shifts.map(shift => {
+        if (shifts) {
+            setEvents(shifts.map((shift) => {
+                const start = new Date(shift.startDate);
+                const end = new Date(shift.endDate);
+                const utcStart = new Date(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate(), start.getUTCHours(), start.getUTCMinutes());
+                const utcEnd = new Date(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate(), end.getUTCHours(), end.getUTCMinutes());
+
                 return {
                     title: shift.nurseFirstName + ' ' + shift.nurseLastName,
-                    start: shift.startDate,
-                    end: shift.endDate
-                };
-            });
-            setEvents(events);
+                    start: utcStart,
+                    end: utcEnd
+                }
+            }));
         }
     }, [shifts]);
-
     useEffect(() => {
         setMonth((new Date().getMonth() + 1).toString());
         setYear(new Date().getFullYear().toString());

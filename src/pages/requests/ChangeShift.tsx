@@ -62,14 +62,34 @@ export default function ChangeShift() {
         if(firstNurseShifts){
             const today = new Date();
 
-            firstNurseShifts.filter((shift)=> shift.startDate>today)
+            firstNurseShifts.map(shift => {
+                const start = new Date(shift.startDate);
+                const end = new Date(shift.endDate);
+                const utcStart = new Date(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate(), start.getUTCHours(), start.getUTCMinutes());
+                const utcEnd = new Date(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate(), end.getUTCHours(), end.getUTCMinutes());
+                return {
+                    ...shift,
+                    startDate: utcStart,
+                    endDate: utcEnd,
+                };
+            }).filter((shift)=> shift.startDate>today)
                 .sort((a,b) =>new Date(a.startDate).getTime() -new Date(b.startDate).getTime());
         }
     }, [firstNurseShifts]);
     useEffect(() => {
         if(secondNurseShifts){
             const today = new Date();
-            secondNurseShifts.filter((shift)=> shift.startDate>today)
+            secondNurseShifts.map(shift => {
+                const start = new Date(shift.startDate);
+                const end = new Date(shift.endDate);
+                const utcStart = new Date(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate(), start.getUTCHours(), start.getUTCMinutes());
+                const utcEnd = new Date(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate(), end.getUTCHours(), end.getUTCMinutes());
+                return {
+                    ...shift,
+                    startDate: utcStart,
+                    endDate: utcEnd,
+                };
+            }).filter((shift)=> shift.startDate>today)
                 .sort((a,b) =>new Date(a.startDate).getTime() -new Date(b.startDate).getTime());
         }
     }, [secondNurseShifts]);
@@ -115,6 +135,7 @@ export default function ChangeShift() {
             year: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
+            timeZone:'UTC'
         };
         const date = new Date(dateString);
         return new Intl.DateTimeFormat('tr-TR', options).format(date);
