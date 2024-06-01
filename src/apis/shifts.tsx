@@ -46,12 +46,14 @@ export const exchangeShifts = async (firstNurseId: string, secondNurseId: string
 
 }
 
-export function useFetchAllShits(month:string,year:string,credentials: string | null,id?:string) {
+export function useFetchAllShifts(month:string,year:string,credentials: string | null,id?:string) {
     let url;
+    console.log(month)
     if(id){
          url = `${BASE_URL}/api/shifts/${id}/${month}/${year}`;
     }else{
-        const numberMonth = parseInt(month)-1;
+        let numberMonth = parseInt(month);
+        numberMonth--;
         url = `${BASE_URL}/api/shifts?month=${numberMonth}&year=${year}`;
     }
 

@@ -1,16 +1,17 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import trLocale from '@fullcalendar/core/locales/tr';
-import {Box, Modal, Typography, useMediaQuery, useTheme} from '@mui/material';
-import {useFetchAllShits} from "../apis/shifts";
+import { Box, Modal, Typography, useMediaQuery, useTheme } from '@mui/material';
+import {useFetchAllShifts} from "../apis/shifts";
 
 interface SelectedEvent {
     title: string;
     startDate: Date | null;
     endDate: Date | null;
 }
+
 type Props = {
     nurseId?: string;
 }
@@ -25,13 +26,10 @@ function WorkCalendar(props: Props) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const [events, setEvents] = useState<any[]>([]);
-    const [month,setMonth] = React.useState(new Date().getMonth().toString());
-    const [year,setYear] = React.useState(new Date().getFullYear().toString());
+    const [month, setMonth] = useState((new Date().getMonth() + 1).toString());
+    const [year, setYear] = useState(new Date().getFullYear().toString());
     const basicAuth = localStorage.getItem('basicAuth');
-    const {shifts,isLoading} = useFetchAllShits(month,year,basicAuth,props.nurseId);
-
-
-
+    const {shifts} = useFetchAllShifts(month,year,basicAuth,props.nurseId);
 
     useEffect(() => {
         setEvents([]);
@@ -41,11 +39,17 @@ function WorkCalendar(props: Props) {
                     title: shift.nurseFirstName + ' ' + shift.nurseLastName,
                     start: shift.startDate,
                     end: shift.endDate
-                }
+                };
             });
             setEvents(events);
         }
     }, [shifts]);
+
+    useEffect(() => {
+        setMonth((new Date().getMonth() + 1).toString());
+        setYear(new Date().getFullYear().toString());
+    }, []);
+
     const openModal = () => {
         setOpen(true);
     };
@@ -71,11 +75,15 @@ function WorkCalendar(props: Props) {
     };
 
     return (
-        <Box sx={{marginTop:isMobile?'75px':'0px'}}>
+        <Box sx={{ marginTop: isMobile ? '75px' : '0px' }}>
             <FullCalendar
                 datesSet={(dateInfo) => {
-                    setMonth((dateInfo.view.currentStart.getMonth()+1).toString());
-                    setYear(dateInfo.view.currentStart.getFullYear().toString());
+                    const newMonth = (dateInfo.view.currentStart.getMonth() + 1).toString();
+                    const newYear = dateInfo.view.currentStart.getFullYear().toString();
+                    if (newMonth !== month || newYear !== year) {
+                        setMonth(newMonth);
+                        setYear(newYear);
+                    }
                 }}
                 plugins={[dayGridPlugin, timeGridPlugin]}
                 initialView="dayGridMonth"
@@ -109,10 +117,10 @@ function WorkCalendar(props: Props) {
                         {selectedEvent.title}
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                       Başlangıç: {selectedEvent.startDate?.toLocaleDateString()} - {selectedEvent.startDate?.toLocaleTimeString().replace(':00', '')}
+                        Başlangıç: {selectedEvent.startDate?.toLocaleDateString()} - {selectedEvent.startDate?.toLocaleTimeString().replace(':00', '')}
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                       Bitiş: {selectedEvent.endDate?.toLocaleDateString()} - {selectedEvent.endDate?.toLocaleTimeString().replace(':00', '')}
+                        Bitiş: {selectedEvent.endDate?.toLocaleDateString()} - {selectedEvent.endDate?.toLocaleTimeString().replace(':00', '')}
                     </Typography>
                 </Box>
             </Modal>
