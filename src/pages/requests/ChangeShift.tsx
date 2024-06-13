@@ -8,6 +8,7 @@ import {Alert, AlertColor, Button, useMediaQuery, useTheme} from "@mui/material"
 import {useFetchNursesAsAList} from "../../apis/nurses";
 import {exchangeShifts, useFetchAvailableShiftsByNurseIdAndShift, useFetchShiftsByNurseId} from "../../apis/shifts";
 import {NurseType} from "../../types/NurseType";
+import {ShiftType} from "../../types/ShiftType";
 
 interface Data {
     avatar: string;
@@ -53,16 +54,17 @@ export default function ChangeShift() {
     const [secondNurse, setSecondNurse] = useState<Data>();
     const [selectedFirstShift, setSelectedFirstShift] = useState<ShiftData>();
     const [selectedSecondShift, setSelectedSecondShift] = useState<ShiftData>();
-    const month = (new Date().getMonth()+2).toString();
+    const [filteredFirstNurseShifts, setFilteredFirstNurseShifts] = useState<ShiftType[]>([]);
+    const [filteredSecondNurseShifts, setFilteredSecondNurseShifts] = useState<ShiftType[]>([]);
+    const month = (new Date().getMonth()+1).toString();
     const year = new Date().getFullYear().toString();
     const { shifts: firstNurseShifts } = useFetchShiftsByNurseId(firstNurse?.id || "", basicAuth,month,year);
     const { shifts: secondNurseShifts } = useFetchAvailableShiftsByNurseIdAndShift(secondNurse?.id || "", basicAuth,month,year,selectedFirstShift?.id || "");
 
     useEffect(() => {
-        if(firstNurseShifts){
+        if (firstNurseShifts) {
             const today = new Date();
-
-            firstNurseShifts.map(shift => {
+            const firstShifts = firstNurseShifts.map(shift => {
                 const start = new Date(shift.startDate);
                 const end = new Date(shift.endDate);
                 const utcStart = new Date(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate(), start.getUTCHours(), start.getUTCMinutes());
@@ -71,15 +73,17 @@ export default function ChangeShift() {
                     ...shift,
                     startDate: utcStart,
                     endDate: utcEnd,
-                };
-            }).filter((shift)=> shift.startDate>today)
-                .sort((a,b) =>new Date(a.startDate).getTime() -new Date(b.startDate).getTime());
+                } as ShiftType
+            }).filter(shift => shift.startDate > today)
+                .sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
+            setFilteredFirstNurseShifts(firstShifts);
         }
     }, [firstNurseShifts]);
+
     useEffect(() => {
-        if(secondNurseShifts){
+        if (secondNurseShifts) {
             const today = new Date();
-            secondNurseShifts.map(shift => {
+            const secondShifts = secondNurseShifts.map(shift => {
                 const start = new Date(shift.startDate);
                 const end = new Date(shift.endDate);
                 const utcStart = new Date(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate(), start.getUTCHours(), start.getUTCMinutes());
@@ -88,9 +92,10 @@ export default function ChangeShift() {
                     ...shift,
                     startDate: utcStart,
                     endDate: utcEnd,
-                };
-            }).filter((shift)=> shift.startDate>today)
-                .sort((a,b) =>new Date(a.startDate).getTime() -new Date(b.startDate).getTime());
+                } as ShiftType
+            }).filter(shift => shift.startDate > today)
+                .sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
+            setFilteredSecondNurseShifts(secondShifts);
         }
     }, [secondNurseShifts]);
 
@@ -135,7 +140,7 @@ export default function ChangeShift() {
             year: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-            timeZone:'UTC'
+            timeZone: 'Asia/Thimphu'
         };
         const date = new Date(dateString);
         return new Intl.DateTimeFormat('tr-TR', options).format(date);
@@ -196,7 +201,7 @@ export default function ChangeShift() {
                                 onChange={handleFirstShiftChange}
                                 disabled={!firstNurse}
                             >
-                                {firstNurseShifts?.map((shift) => (
+                                {filteredFirstNurseShifts?.map((shift) => (
                                     <MenuItem key={shift.id} value={shift.id}>{`${formatDateForTurkey(shift.startDate.toString())} - ${formatDateForTurkey(shift.endDate.toString())}`}</MenuItem>
                                 ))}
                             </Select>
@@ -231,7 +236,7 @@ export default function ChangeShift() {
                                 onChange={handleSecondShiftChange}
                                 disabled={!secondNurse || secondNurseShifts?.length === 0}
                             >
-                                {secondNurseShifts?.map((shift) => (
+                                {filteredSecondNurseShifts?.map((shift) => (
                                     <MenuItem key={shift.id} value={shift.id}>{`${formatDateForTurkey(shift.startDate.toString())} - ${formatDateForTurkey(shift.endDate.toString())}`}</MenuItem>
                                 ))}
                             </Select>
