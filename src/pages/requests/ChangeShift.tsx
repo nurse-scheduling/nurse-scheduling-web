@@ -140,7 +140,7 @@ export default function ChangeShift() {
             year: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-            timeZone: 'Asia/Thimphu'
+            timeZone: 'Europe/Istanbul'
         };
         const date = new Date(dateString);
         return new Intl.DateTimeFormat('tr-TR', options).format(date);
